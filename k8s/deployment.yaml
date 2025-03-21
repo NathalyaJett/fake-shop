@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fake-shop
+  labels:
+    app: fake-shop
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: fake-shop
+  template:
+    metadata:
+      labels:
+        app: fake-shop
+    spec:
+      containers:
+        - name: fake-shop
+          image: nathalyajett/fake-shop:latest  #Minha imagem no Docker Hub
+          ports:
+            - containerPort: 5000
+          env:
+            - name: FLASK_APP
+              value: "index.py" 
+            - name: FLASK_RUN_HOST
+              value: "0.0.0.0"
+            - name: DB_HOST
+              value: "postgres-service"
+            - name: DB_USER
+              value: "ecommerce"
+            - name: DB_PASSWORD
+              value: "pg1234"
+            - name: DB_NAME
+              value: "ecommerce"
+            - name: DB_PORT
+              value: "5432"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fake-shop-service
+spec:
+  selector:
+    app: fake-shop
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
