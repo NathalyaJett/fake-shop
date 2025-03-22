@@ -20,7 +20,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Construir imagem Docker
-        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fake-shop:latest .
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fake-shop:latest ./src
 
       - name: Enviar imagem para o Docker Hub
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/fake-shop:latest
