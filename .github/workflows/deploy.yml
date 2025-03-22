@@ -1,0 +1,35 @@
+name: CI/CD - Build and Deploy Fake Shop
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Autenticar no Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Construir imagem Docker
+        run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/fake-shop:latest .
+
+      - name: Enviar imagem para o Docker Hub
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/fake-shop:latest
+
+      - name: Configurar acesso ao cluster Kubernetes
+        run: |
+          echo "${{ secrets.KUBE_CONFIG_DATA }}" | base64 -d > kubeconfig
+          mkdir -p $HOME/.kube
+          mv kubeconfig $HOME/.kube/config
+
+      - name: Aplicar manifestos no cluster
+        run: kubectl apply -f k8s/
